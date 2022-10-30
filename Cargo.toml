@@ -18,6 +18,12 @@ name = "webserver"
 
 
 [dependencies]
+yew = "0.19"
 reqwest = "0.11"
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"]}
+actix-files = "0.6"
+actix-rt = "*"
+env_logger = "0.9.0"
+log = "0.4"

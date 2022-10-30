@@ -1,11 +1,37 @@
-use webserver::run;
-use std::net::TcpListener;
-#[tokio::main]
+// use std::net::TcpListener;
+// use webserver::run;
+// #[tokio::main]
+// async fn main() -> std::io::Result<()> {
+//     // Bubble up the io::Error if we failed to bind the address
+//     // Otherwise call .await on our Server
+
+//     let listener = TcpListener::bind("127.0.0.1:0")?;
+
+//     run(listener)?.await
+// }
+
+use actix_files::Files;
+use actix_web::{middleware::Logger, App, HttpServer};
+
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Bubble up the io::Error if we failed to bind the address
-    // Otherwise call .await on our Server
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let listener = TcpListener::bind("127.0.0.1:0")?;
+    log::info!("starting HTTP server at http://localhost:8080");
 
-    run(listener)?.await
+    HttpServer::new(|| {
+        App::new()
+            // We allow the visitor to see an index of the images at `/images`.
+            .service(Files::new("/images", "static/images/").show_files_listing())
+            // Serve a tree of static files at the web root and specify the index file.
+            // Note that the root path should always be defined as the last item. The paths are
+            // resolved in the order they are defined. If this would be placed before the `/images`
+            // path then the service for the static images would never be reached.
+            .service(Files::new("/", "./static/root/").index_file("index.html"))
+            // Enable the logger.
+            .wrap(Logger::default())
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
